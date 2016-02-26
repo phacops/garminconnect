@@ -7,13 +7,13 @@ import (
 
 type HeartRateValue [2]int
 
-type DailyHeartRate struct {
+type HeartRate struct {
 	Min    int              `json:"minHeartRate"`
 	Max    int              `json:"maxHeartRate"`
 	Values []HeartRateValue `json:"heartRateValues"`
 }
 
-func (gc *GarminConnect) DailyHeartRate(date time.Time) DailyHeartRate {
+func (gc *GarminConnect) HeartRateByDate(date time.Time) HeartRate {
 	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate/" + gc.displayName + "?date=" + date.Format("2006-01-02"))
 
 	if err != nil {
@@ -22,9 +22,9 @@ func (gc *GarminConnect) DailyHeartRate(date time.Time) DailyHeartRate {
 
 	defer response.Body.Close()
 
-	var dailyHeartRate DailyHeartRate
+	var heartRate HeartRate
 
-	json.NewDecoder(response.Body).Decode(&dailyHeartRate)
+	json.NewDecoder(response.Body).Decode(&heartRate)
 
-	return dailyHeartRate
+	return heartRate
 }
