@@ -6,7 +6,7 @@ type UserProfile struct {
 	DisplayName string `json:"displayName"`
 }
 
-func (gc *GarminConnect) UserProfile() UserProfile {
+func (gc *Client) UserProfile() UserProfile {
 	response, err := gc.client.Get("http://connect.garmin.com/proxy/userprofile-service/socialProfile")
 
 	if err != nil {

@@ -9,26 +9,34 @@ import (
 	"regexp"
 )
 
-type GarminConnect struct {
+type Client struct {
 	client      *http.Client
 	displayName string
 }
 
-func NewClient() *GarminConnect {
+func NewClient(httpClient ...*http.Client) *Client {
 	cookies, err := cookiejar.New(nil)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return &GarminConnect{
-		client: &http.Client{
-			Jar: cookies,
-		},
+	var client *http.Client
+
+	if len(httpClient) > 0 {
+		client = httpClient[0]
+	} else {
+		client = &http.Client{}
+	}
+
+	client.Jar = cookies
+
+	return &Client{
+		client: client,
 	}
 }
 
-func (gc *GarminConnect) Auth(username, password string) bool {
+func (gc *Client) Auth(username, password string) bool {
 	params := url.Values{}
 	params.Set("service", "https://connect.garmin.com/post-auth/login")
 	params.Set("clientId", "GarminConnect")

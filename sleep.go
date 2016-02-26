@@ -11,7 +11,7 @@ type Sleep struct {
 	Duration int    `json:"sleepTimeSeconds"`
 }
 
-func (gc *GarminConnect) SleepByDate(date time.Time) Sleep {
+func (gc *Client) SleepByDate(date time.Time) Sleep {
 	params := url.Values{}
 	params.Set("date", date.Format("2006-01-02"))
 	params.Set("nonSleepBufferMinutes", "60")

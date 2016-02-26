@@ -12,7 +12,7 @@ type Weight struct {
 	Value float64 `json:"weight"`
 }
 
-func (gc *GarminConnect) WeightByDate(date time.Time) []Weight {
+func (gc *Client) WeightByDate(date time.Time) []Weight {
 	params := url.Values{}
 	params.Set("from", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).UnixNano(), 10))
 	params.Set("until", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 99, time.UTC).UnixNano(), 10))
