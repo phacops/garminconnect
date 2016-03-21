@@ -14,8 +14,8 @@ type Weight struct {
 
 func (gc *Client) WeightByDate(date time.Time) []Weight {
 	params := url.Values{}
-	params.Set("from", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).UnixNano(), 10))
-	params.Set("until", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 99, time.UTC).UnixNano(), 10))
+	params.Set("from", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).UnixNano()/int64(time.Millisecond), 10))
+	params.Set("until", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 0, time.UTC).UnixNano()/int64(time.Millisecond), 10))
 
 	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/userprofile-service/userprofile/personal-information/weightWithOutbound/filterByDay?" + params.Encode())
 
