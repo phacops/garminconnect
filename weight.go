@@ -8,7 +8,7 @@ import (
 )
 
 type Weight struct {
-	Date  int     `json:"date"`
+	Date  int64   `json:"date"`
 	Value float64 `json:"weight"`
 }
 
