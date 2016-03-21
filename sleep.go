@@ -7,8 +7,10 @@ import (
 )
 
 type Sleep struct {
-	Date     string `json:"calendarDate"`
-	Duration int    `json:"sleepTimeSeconds"`
+	Date       string `json:"calendarDate"`
+	Duration   int64  `json:"sleepTimeSeconds"`
+	BedTime    int64  `json:"sleepStartTimestampGMT"`
+	WakeUpTime int64  `json:"sleepEndTimestampGMT"`
 }
 
 func (gc *Client) SleepByDate(date time.Time) Sleep {
