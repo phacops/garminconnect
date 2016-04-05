@@ -1,7 +1,7 @@
 package garminconnect
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -14,11 +14,11 @@ type Client struct {
 	displayName string
 }
 
-func NewClient(httpClient ...*http.Client) *Client {
+func NewClient(httpClient ...*http.Client) (*Client, error) {
 	cookies, err := cookiejar.New(nil)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var client *http.Client
@@ -33,75 +33,57 @@ func NewClient(httpClient ...*http.Client) *Client {
 
 	return &Client{
 		client: client,
-	}
+	}, nil
 }
 
-func (gc *Client) Auth(username, password string) bool {
-	params := url.Values{}
-	params.Set("service", "https://connect.garmin.com/post-auth/login")
-	params.Set("clientId", "GarminConnect")
-	params.Set("consumeServiceTicket", "false")
-
-	response, err := gc.client.Get("https://sso.garmin.com/sso/login?" + params.Encode())
+func (gc *Client) Auth(username, password string) error {
+	loginUrl, err := url.Parse("https://sso.garmin.com/sso/login?service=https://connect.garmin.com/post-auth/login&webhost=olaxpw-connect13.garmin.com&source=https://connect.garmin.com/en-US/signin&redirectAfterAccountLoginUrl=https://connect.garmin.com/post-auth/login&redirectAfterAccountCreationUrl=https://connect.garmin.com/post-auth/login&gauthHost=https://sso.garmin.com/sso&locale=en_US&id=gauth-widget&cssUrl=https://static.garmincdn.com/com.garmin.connect/ui/css/gauth-custom-v1.2-min.css&clientId=GarminConnect&rememberMeShown=true&rememberMeChecked=false&createAccountShown=true&openCreateAccount=false&usernameShown=false&displayNameShown=false&consumeServiceTicket=false&initialFocus=true&embedWidget=false&generateExtraServiceTicket=false")
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	defer response.Body.Close()
+	_, err = gc.client.Get(loginUrl.String())
+
+	if err != nil {
+		return err
+	}
+
+	data := url.Values{}
+
+	data.Set("username", username)
+	data.Set("password", password)
+	data.Set("_eventId", "submit")
+	data.Set("embed", "true")
+	data.Set("lt", "e1s1")
+	data.Set("displayNameRequired", "false")
+
+	response, err := gc.client.PostForm(loginUrl.String(), data)
+
+	if err != nil {
+		return err
+	}
 
 	if response.StatusCode != http.StatusOK {
-		fmt.Println("pre auth request not good")
-		return false
+		return errors.New("auth request not good")
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	re := regexp.MustCompile(`name="lt"\s+value="([^\"]+)"`)
-	lt := re.FindAllStringSubmatch(string(body), 1)[0][1]
-
-	data := url.Values{}
-	data.Set("username", username)
-	data.Set("password", password)
-	data.Set("_eventId", "submit")
-	data.Set("embed", "true")
-	data.Set("lt", lt)
-
-	response, err = gc.client.PostForm("https://sso.garmin.com/sso/login?"+params.Encode(), data)
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		fmt.Println("auth request not good")
-		return false
-	}
-
-	body, err = ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		panic(err)
-	}
-
-	re = regexp.MustCompile(`ticket=([^']+)'`)
+	re := regexp.MustCompile(`ticket=([^']+)'`)
 	ticket := re.FindAllStringSubmatch(string(body), 1)[0][1]
 
 	response, err = gc.client.Get("https://connect.garmin.com/post-auth/login?ticket=" + ticket)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer response.Body.Close()
 
-	gc.displayName = gc.UserProfile().DisplayName
-
-	return response.StatusCode == http.StatusOK
+	return nil
 }

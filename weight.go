@@ -12,22 +12,31 @@ type Weight struct {
 	Value float64 `json:"weight"`
 }
 
-func (gc *Client) WeightByDate(date time.Time) []Weight {
+func (gc *Client) WeightByDate(date time.Time) ([]Weight, error) {
+	from := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).UnixNano() / int64(time.Millisecond)
+	until := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 0, time.UTC).UnixNano() / int64(time.Millisecond)
+
 	params := url.Values{}
-	params.Set("from", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).UnixNano()/int64(time.Millisecond), 10))
-	params.Set("until", strconv.FormatInt(time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 0, time.UTC).UnixNano()/int64(time.Millisecond), 10))
+	params.Set("from", strconv.FormatInt(from, 10))
+	params.Set("until", strconv.FormatInt(until, 10))
 
 	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/userprofile-service/userprofile/personal-information/weightWithOutbound/filterByDay?" + params.Encode())
 
 	if err != nil {
-		panic(err)
+		return []Weight{}, err
 	}
 
 	defer response.Body.Close()
 
-	var weights []Weight
+	var data, weights []Weight
 
-	json.NewDecoder(response.Body).Decode(&weights)
+	json.NewDecoder(response.Body).Decode(&data)
 
-	return weights
+	for _, weight := range data {
+		if from <= weight.Date && weight.Date <= until {
+			weights = append(weights, weight)
+		}
+	}
+
+	return weights, nil
 }

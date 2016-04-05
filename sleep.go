@@ -13,15 +13,15 @@ type Sleep struct {
 	WakeUpTime int64  `json:"sleepEndTimestampGMT"`
 }
 
-func (gc *Client) SleepByDate(date time.Time) Sleep {
+func (gc *Client) SleepByDate(date time.Time) (Sleep, error) {
 	params := url.Values{}
 	params.Set("date", date.Format("2006-01-02"))
 	params.Set("nonSleepBufferMinutes", "60")
 
-	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailySleep/user/" + gc.displayName + "?" + params.Encode())
+	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailySleep/user?" + params.Encode())
 
 	if err != nil {
-		panic(err)
+		return Sleep{}, err
 	}
 
 	defer response.Body.Close()
@@ -30,5 +30,5 @@ func (gc *Client) SleepByDate(date time.Time) Sleep {
 
 	json.NewDecoder(response.Body).Decode(&sleep)
 
-	return sleep
+	return sleep, nil
 }

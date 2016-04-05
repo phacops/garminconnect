@@ -6,11 +6,11 @@ type UserProfile struct {
 	DisplayName string `json:"displayName"`
 }
 
-func (gc *Client) UserProfile() UserProfile {
+func (gc *Client) UserProfile() (UserProfile, error) {
 	response, err := gc.client.Get("http://connect.garmin.com/proxy/userprofile-service/socialProfile")
 
 	if err != nil {
-		panic(err)
+		return UserProfile{}, err
 	}
 
 	defer response.Body.Close()
@@ -19,5 +19,5 @@ func (gc *Client) UserProfile() UserProfile {
 
 	json.NewDecoder(response.Body).Decode(&profile)
 
-	return profile
+	return profile, nil
 }

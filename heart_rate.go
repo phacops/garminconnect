@@ -13,11 +13,11 @@ type HeartRate struct {
 	Values []HeartRateValue `json:"heartRateValues"`
 }
 
-func (gc *Client) HeartRateByDate(date time.Time) HeartRate {
-	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate/" + gc.displayName + "?date=" + date.Format("2006-01-02"))
+func (gc *Client) HeartRateByDate(date time.Time) (HeartRate, error) {
+	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate?date=" + date.Format("2006-01-02"))
 
 	if err != nil {
-		panic(err)
+		return HeartRate{}, err
 	}
 
 	defer response.Body.Close()
@@ -26,5 +26,5 @@ func (gc *Client) HeartRateByDate(date time.Time) HeartRate {
 
 	json.NewDecoder(response.Body).Decode(&heartRate)
 
-	return heartRate
+	return heartRate, nil
 }
