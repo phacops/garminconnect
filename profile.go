@@ -7,7 +7,7 @@ type UserProfile struct {
 }
 
 func (gc *Client) UserProfile() (UserProfile, error) {
-	response, err := gc.client.Get("http://connect.garmin.com/proxy/userprofile-service/socialProfile")
+	response, err := gc.client.Get(GARMIN_CONNECT_URL + "/proxy/userprofile-service/socialProfile")
 
 	if err != nil {
 		return UserProfile{}, err

@@ -9,6 +9,10 @@ import (
 	"regexp"
 )
 
+const (
+	GARMIN_CONNECT_URL = "https://connect.garmin.com"
+)
+
 type Client struct {
 	client      *http.Client
 	displayName string
@@ -37,7 +41,7 @@ func NewClient(httpClient ...*http.Client) (*Client, error) {
 }
 
 func (gc *Client) Auth(username, password string) error {
-	loginUrl, err := url.Parse("https://sso.garmin.com/sso/login?service=https://connect.garmin.com/post-auth/login&webhost=olaxpw-connect13.garmin.com&source=https://connect.garmin.com/en-US/signin&redirectAfterAccountLoginUrl=https://connect.garmin.com/post-auth/login&redirectAfterAccountCreationUrl=https://connect.garmin.com/post-auth/login&gauthHost=https://sso.garmin.com/sso&locale=en_US&id=gauth-widget&cssUrl=https://static.garmincdn.com/com.garmin.connect/ui/css/gauth-custom-v1.2-min.css&clientId=GarminConnect&rememberMeShown=true&rememberMeChecked=false&createAccountShown=true&openCreateAccount=false&usernameShown=false&displayNameShown=false&consumeServiceTicket=false&initialFocus=true&embedWidget=false&generateExtraServiceTicket=false")
+	loginUrl, err := url.Parse("https://sso.garmin.com/sso/login?service=" + GARMIN_CONNECT_URL + "/post-auth/login&webhost=olaxpw-connect13.garmin.com&source=" + GARMIN_CONNECT_URL + "/en-US/signin&redirectAfterAccountLoginUrl=" + GARMIN_CONNECT_URL + "/post-auth/login&redirectAfterAccountCreationUrl=" + GARMIN_CONNECT_URL + "/post-auth/login&gauthHost=https://sso.garmin.com/sso&locale=en_US&id=gauth-widget&cssUrl=https://static.garmincdn.com/com.garmin.connect/ui/css/gauth-custom-v1.2-min.css&clientId=GarminConnect&rememberMeShown=true&rememberMeChecked=false&createAccountShown=true&openCreateAccount=false&usernameShown=false&displayNameShown=false&consumeServiceTicket=false&initialFocus=true&embedWidget=false&generateExtraServiceTicket=false")
 
 	if err != nil {
 		return err
@@ -77,7 +81,7 @@ func (gc *Client) Auth(username, password string) error {
 	re := regexp.MustCompile(`ticket=([^']+)'`)
 	ticket := re.FindAllStringSubmatch(string(body), 1)[0][1]
 
-	response, err = gc.client.Get("https://connect.garmin.com/post-auth/login?ticket=" + ticket)
+	response, err = gc.client.Get(GARMIN_CONNECT_URL + "/post-auth/login?ticket=" + ticket)
 
 	if err != nil {
 		return err

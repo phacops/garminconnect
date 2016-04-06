@@ -14,7 +14,7 @@ type HeartRate struct {
 }
 
 func (gc *Client) HeartRateByDate(date time.Time) (HeartRate, error) {
-	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate?date=" + date.Format("2006-01-02"))
+	response, err := gc.client.Get(GARMIN_CONNECT_URL + "/modern/proxy/wellness-service/wellness/dailyHeartRate?date=" + date.Format("2006-01-02"))
 
 	if err != nil {
 		return HeartRate{}, err

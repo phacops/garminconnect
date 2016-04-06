@@ -20,7 +20,7 @@ func (gc *Client) WeightByDate(date time.Time) ([]Weight, error) {
 	params.Set("from", strconv.FormatInt(from, 10))
 	params.Set("until", strconv.FormatInt(until, 10))
 
-	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/userprofile-service/userprofile/personal-information/weightWithOutbound/filterByDay?" + params.Encode())
+	response, err := gc.client.Get(GARMIN_CONNECT_URL + "/modern/proxy/userprofile-service/userprofile/personal-information/weightWithOutbound/filterByDay?" + params.Encode())
 
 	if err != nil {
 		return []Weight{}, err

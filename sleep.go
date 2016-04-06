@@ -18,7 +18,7 @@ func (gc *Client) SleepByDate(date time.Time) (Sleep, error) {
 	params.Set("date", date.Format("2006-01-02"))
 	params.Set("nonSleepBufferMinutes", "60")
 
-	response, err := gc.client.Get("https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailySleep/user?" + params.Encode())
+	response, err := gc.client.Get(GARMIN_CONNECT_URL + "/modern/proxy/wellness-service/wellness/dailySleep/user?" + params.Encode())
 
 	if err != nil {
 		return Sleep{}, err
