@@ -9,15 +9,15 @@ import (
 	"path/filepath"
 )
 
-type Message struct {
+type ResultMessage struct {
 	Code    int    `json:"code"`
 	Content string `json:"content"`
 }
 
 type Result struct {
-	InternalId int       `json:"internalId"`
-	ExternalId string    `json:"externalId"`
-	Messages   []Message `json:"messages"`
+	InternalId int             `json:"internalId"`
+	ExternalId string          `json:"externalId"`
+	Messages   []ResultMessage `json:"messages"`
 }
 
 type Upload struct {
