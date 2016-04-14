@@ -61,6 +61,22 @@ func (gc *Client) Messages() ([]Message, error) {
 	return queue.Messages, nil
 }
 
+func (gc *Client) MessageReceived(messageId int) error {
+	response, err := gc.client.PostForm(GARMIN_CONNECT_URL+fmt.Sprintf("/modern/proxy/device-service/devicemessage/message/%d?status=received", messageId), nil)
+
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("%d", response.StatusCode))
+	}
+
+	return nil
+}
+
 func (gc *Client) DeleteMessage(messageId int) error {
 	request, err := http.NewRequest(http.MethodDelete, GARMIN_CONNECT_URL+fmt.Sprintf("/modern/proxy/device-service/devicemessage/message/%d", messageId), nil)
 
