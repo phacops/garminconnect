@@ -78,9 +78,8 @@ func (gc *Client) Auth(username, password string) error {
 		return err
 	}
 
-	re := regexp.MustCompile(`ticket=([^']+)'`)
+	re := regexp.MustCompile(`ticket=([^"]+)`)
 	ticket := re.FindAllStringSubmatch(string(body), 1)[0][1]
-
 	response, err = gc.client.Get(GARMIN_CONNECT_URL + "/post-auth/login?ticket=" + ticket)
 
 	if err != nil {
